@@ -62,7 +62,7 @@ class SurveyController extends Controller
      * Display the specified resource.
      *
      * @param \App\Models\Survey $survey
-     * @return \Illuminate\Http\Response
+     * @return SurveyResource
      */
     public function show(Survey $survey, Request $request)
     {
@@ -243,7 +243,6 @@ class SurveyController extends Controller
      * @param                            $data
      * @return bool
      * @throws \Illuminate\Validation\ValidationException
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     private function updateQuestion(SurveyQuestion $question, $data)
     {

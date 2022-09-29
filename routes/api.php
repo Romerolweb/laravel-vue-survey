@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+use App\Models\SurveyAnswer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -23,6 +24,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::resource('/survey', \App\Http\Controllers\SurveyController::class);
 
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
+
+    Route::resource('SurveyAnswer', SurveyAnswer::class)->only([
+        'index', 'show'
+    ]);
 });
 
 Route::get('/survey-by-slug/{survey:slug}', [\App\Http\Controllers\SurveyController::class, 'showForGuest']);
