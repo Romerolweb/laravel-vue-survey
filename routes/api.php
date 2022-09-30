@@ -26,10 +26,10 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index']);
 
-    Route::get('/survey-question-answer', [\App\Http\Controllers\SurveyQuestionAnswerController::class, 'index']);
-    Route::get('/survey-question-answer/{survey}', [\App\Http\Controllers\SurveyQuestionAnswerController::class, 'showBySurveyId']);
 
 });
+Route::get('/survey-question-answer', [\App\Http\Controllers\SurveyQuestionAnswerController::class, 'index']);
+Route::get('/survey-question-answer/{survey}', [\App\Http\Controllers\SurveyQuestionAnswerController::class, 'showBySurveyId']);
 
 Route::get('/survey-by-slug/{survey:slug}', [\App\Http\Controllers\SurveyController::class, 'showForGuest']);
 Route::post('/survey/{survey}/answer', [\App\Http\Controllers\SurveyController::class, 'storeAnswer']);

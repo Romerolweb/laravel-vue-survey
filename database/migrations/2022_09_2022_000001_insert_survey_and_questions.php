@@ -5,7 +5,7 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class CreateSurveyQuestionAnswersTable extends Migration
+class InsertSurveyAndQuestions extends Migration
 {
     /**
      * Run the migrations.
@@ -18,7 +18,7 @@ class CreateSurveyQuestionAnswersTable extends Migration
 
         ];
 
-        DB::table('surveys')->insert($surveyData); // Query Builder approach
+//        DB::table('surveys')->insert($surveyData); // Query Builder approach
     }
 
     /**

@@ -19,9 +19,9 @@ class SurveyQuestionAnswerController extends Controller
         $user = $request->user();
 
         $surveyQuestionAnswers = SurveyQuestionAnswer::query()
-            ->join('survey_question_answers', 'survey_answers.id', '=', 'survey_question_answers.survey_answer_id')
+            ->join('survey_question_answers as sqa', 'survey_answers.id', '=', 'survey_question_answers.survey_answer_id')
             ->join('surveys', 'survey_answers.survey_id', '=', 'surveys.id')
-            ->where('surveys.user_id', $user->id)
+            ->where('surveys.user_id', 2)
             ->orderBy('end_date', 'DESC')
             ->getModels('survey_answers.*');
 
