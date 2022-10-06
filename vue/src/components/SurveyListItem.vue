@@ -16,8 +16,15 @@
     <div class="flex justify-between items-center mt-3">
       <TButton :to="{ name: 'SurveyView', params: { id: survey.id } }">
         <PencilIcon class="wo-5 h-5 mr-2 " />
-        Edit
+        Editar
       </TButton>
+
+      <TButton  :to="{ name: 'AnswersView', params: { id: survey.id } }"
+                link>
+        <EyeIcon class="w-5 h-5 mr-2" />
+        ver
+      </TButton>
+
       <div class="flex items-center">
         <TButton :href="`/view/survey/${survey.slug}`" circle link target="_blank">
           <ExternalLinkIcon class="w-5 h-5" />
@@ -33,7 +40,7 @@
 
 <script setup>
 import TButton from "./core/TButton.vue";
-import { PencilIcon, ExternalLinkIcon, TrashIcon } from '@heroicons/vue/solid'
+import { PencilIcon, ExternalLinkIcon, TrashIcon, EyeIcon } from '@heroicons/vue/solid'
 
 const { survey } = defineProps({
   survey: Object,

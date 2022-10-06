@@ -268,7 +268,7 @@ function deleteQuestion(question) {
 }
 
 function questionChange(question) {
-  // Important to explicitelly assign question.data.options, because otherwise it is a Proxy object
+  // Important to explicitly assign question.data.options, because otherwise it is a Proxy object
   // and it is lost in JSON.stringify()
   if (question.data.options) {
     question.data.options = [...question.data.options];
