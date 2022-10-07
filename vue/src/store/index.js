@@ -20,6 +20,15 @@ const store = createStore({
       data: {},
       loading: false,
     },
+    answers: {
+      loading: false,
+      links: [],
+      data: []
+    },
+    currentAnswer: {
+      data: {},
+      loading: false,
+    },
     questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
     notification: {
       show: false,
@@ -140,6 +149,29 @@ const store = createStore({
     saveSurveyAnswer({commit}, {surveyId, answers}) {
       return axiosClient.post(`/survey/${surveyId}/answer`, {answers});
     },
+    getAnswers({ commit }, {url = null} = {}) {
+      commit('setAnswersLoading', true)
+      url = url || "/survey-question-answer";
+      return axiosClient.get(url).then((res) => {
+        commit('setAnswersLoading', false)
+        commit("setAnswers", res.data);
+        return res;
+      });
+    },
+    getAnswer({ commit }, surveyId) {
+      commit("setCurrentAnswerLoading", true);
+      return axiosClient
+        .get(`/survey-question-answer/${surveyId}`)
+        .then((res) => {
+          commit("setAnswers", res.data);
+          commit("setCurrentAnswerLoading", false);
+          return res;
+        })
+        .catch((err) => {
+          commit("setCurrentAnswerLoading", false);
+          throw err;
+        });
+    },
   },
   mutations: {
     logout: (state) => {
@@ -173,6 +205,19 @@ const store = createStore({
     },
     setCurrentSurvey: (state, survey) => {
       state.currentSurvey.data = survey.data;
+    },
+    setAnswersLoading: (state, loading) => {
+      state.answers.loading = loading;
+    },
+    setAnswers: (state, answers) => {
+      state.answers.links = answers.meta.links;
+      state.answers.data = answers.data; //questions and answers
+    },
+    setCurrentAnswerLoading: (state, loading) => {
+      state.currentAnswer.loading = loading;
+    },
+    setCurrentAnswer: (state, answer) => {
+      state.currentAnswer.data = answer.data;
     },
     notify: (state, {message, type}) => {
       state.notification.show = true;
