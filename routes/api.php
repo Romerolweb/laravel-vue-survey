@@ -32,6 +32,7 @@ Route::get('/survey-question-answer', [\App\Http\Controllers\SurveyQuestionAnswe
 Route::get('/survey-question-answer/{survey}', [\App\Http\Controllers\SurveyQuestionAnswerController::class, 'showBySurveyId']);
 
 Route::get('/survey-answers', [\App\Http\Controllers\SurveyController::class, 'showAnswers']);
+Route::get('/survey-answers/{survey:id}', [\App\Http\Controllers\SurveyController::class, 'showAnswersBySurvey']);
 
 
 Route::get('/survey-by-slug/{survey:slug}', [\App\Http\Controllers\SurveyController::class, 'showForGuest']);

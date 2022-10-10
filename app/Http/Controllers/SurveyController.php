@@ -109,6 +109,35 @@ class SurveyController extends Controller
         ];
     }
 
+
+    /**
+     * @param Survey $survey
+     * @param Request $request
+     * @return array
+     */
+    public function showAnswersBySurvey(Survey $survey, Request $request): array
+    {
+        $surveyAnswersResponse = $survey::query()
+            ->join('survey_answers', 'surveys.id', '=','survey_answers.survey_id')
+            ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
+            ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
+            ->where('surveys.id', '=', $survey->id)
+            ->get();
+
+        $answerData = [];
+        foreach ($surveyAnswersResponse as $surveyAnswer){
+            $answerData[$surveyAnswer->survey_answer_id][$surveyAnswer->survey_question_id] = $surveyAnswer->answer;
+        }
+
+        $questionData = $surveyAnswersResponse->unique('survey_question_id')
+            ->pluck('question','survey_question_id');
+
+
+        return [
+            "questions" => $questionData,
+            "answers" => $answerData
+        ];
+    }
     /**
      * Display the specified resource.
      *
