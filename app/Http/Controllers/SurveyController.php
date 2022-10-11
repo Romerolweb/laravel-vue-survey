@@ -42,8 +42,9 @@ class SurveyController extends Controller
      *
      * @param StoreSurveyRequest $request
      * @return SurveyResource
+     * @throws ValidationException
      */
-    public function store(StoreSurveyRequest $request)
+    public function store(StoreSurveyRequest $request): SurveyResource
     {
         $data = $request->validated();
 
@@ -104,6 +105,7 @@ class SurveyController extends Controller
 
 
         return [
+            "survey" => new SurveyResource($survey),
             "questions" => $questionData,
             "answers" => $answerData
         ];
@@ -132,11 +134,14 @@ class SurveyController extends Controller
         $questionData = $surveyAnswersResponse->unique('survey_question_id')
             ->pluck('question','survey_question_id');
 
-
+        $data = [
+        "answers" => $answerData,
+        "questions" => $questionData,
+        "survey" => new SurveyResource($survey),
+    ];
         return [
-            "questions" => $questionData,
-            "answers" => $answerData
-        ];
+            "data" => $data,
+            ];
     }
     /**
      * Display the specified resource.
@@ -223,7 +228,7 @@ class SurveyController extends Controller
      * @param Survey $survey
      * @return Response
      */
-    public function destroy(Survey $survey, Request $request)
+    public function destroy(Survey $survey, Request $request): Response
     {
         $user = $request->user();
         if ($user->id !== $survey->user_id) {
@@ -280,7 +285,7 @@ class SurveyController extends Controller
      * Create a question and return
      *
      * @param $data
-     * @return mixed
+     * @return void
      * @throws ValidationException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
@@ -303,7 +308,7 @@ class SurveyController extends Controller
             'survey_id' => 'exists:App\Models\Survey,id'
         ]);
 
-        return SurveyQuestion::create($validator->validated());
+        SurveyQuestion::create($validator->validated());
     }
 
     /**
@@ -344,7 +349,7 @@ class SurveyController extends Controller
      * @throws Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    private function saveImage($image)
+    private function saveImage($image): string
     {
         // Check if image is valid base64 string
         if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {

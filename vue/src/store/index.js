@@ -22,7 +22,7 @@ const store = createStore({
     },
     answers: {
       loading: false,
-      links: [],
+      // links: [],
       data: []
     },
     currentAnswer: {
@@ -65,8 +65,7 @@ const store = createStore({
     getUser({commit}) {
       return axiosClient.get('/user')
       .then(res => {
-        console.log(res);
-        commit('setUser', res.data)
+        commit('setUser', res)
       })
     },
     getDashboardData({commit}) {
@@ -151,17 +150,18 @@ const store = createStore({
     },
     getAnswers({ commit }, {url = null} = {}) {
       commit('setAnswersLoading', true)
-      url = url || "/survey-question-answer";
+      url = url || "/survey-answers";
       return axiosClient.get(url).then((res) => {
         commit('setAnswersLoading', false)
         commit("setAnswers", res.data);
+        console.log(res.data);
         return res;
       });
     },
     getAnswer({ commit }, surveyId) {
       commit("setCurrentAnswerLoading", true);
       return axiosClient
-        .get(`/survey-question-answer/${surveyId}`)
+        .get(`/survey-answers/${surveyId}`)
         .then((res) => {
           commit("setAnswers", res.data);
           commit("setCurrentAnswerLoading", false);
@@ -210,8 +210,9 @@ const store = createStore({
       state.answers.loading = loading;
     },
     setAnswers: (state, answers) => {
-      state.answers.links = answers.meta.links;
+      // state.answers.links = answers.meta.links;
       state.answers.data = answers.data; //questions and answers
+      console.log(answers);
     },
     setCurrentAnswerLoading: (state, loading) => {
       state.currentAnswer.loading = loading;

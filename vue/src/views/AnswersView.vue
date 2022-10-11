@@ -6,12 +6,22 @@
     Loading
   </div>
   <div v-else>
-    hi  the route id is:
-    <div v-if="params">
-      {{ route.params.id }}
-    </div>
+    <table>
+      <thead> 
 
-    {{store}}
+      </thead>
+    </table>
+
+<!--    hi  the route id is:-->
+<!--    <div v-if="params">-->
+<!--      {{ route.params.id }}-->
+<!--    </div>-->
+   <pre>
+<!--     {{data}}-->
+   </pre>
+    <pre>
+     {{answers}}
+   </pre>
   </div>
 
 
@@ -33,13 +43,17 @@ const route = useRoute();
 const loading = computed(() => store.state.answers.loading);
 const data = computed(() => store.state.answers.data);
 
-store.dispatch("getAnswers");
+const answers = computed(() => store.state.answers);
+
 
 let params = false;
 
 if (route.params.id) {
-  console.log(route.params.id);
+  store.dispatch("getAnswer",route.params.id);
   params = true;
+}
+if (!route.params.id) {
+  store.dispatch("getAnswers");
 }
 
 </script>
