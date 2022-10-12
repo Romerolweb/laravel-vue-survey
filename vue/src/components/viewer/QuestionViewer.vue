@@ -14,6 +14,7 @@
           :value="modelValue"
           @change="emits('update:modelValue', $event.target.value)"
           class="mt-1 block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+          required
         >
           <option value="">Please Select</option>
           <option v-for="option in question.data.options" :key="option.uuid" :value="option.text">
@@ -34,6 +35,7 @@
             @change="emits('update:modelValue', $event.target.value)"
             type="radio"
             class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+            required
           />
           <label
             :for="option.uuid"
@@ -55,6 +57,7 @@
             @change="onCheckboxChange"
             type="checkbox"
             class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+            required
           />
           <label
             :for="option.uuid"
@@ -69,7 +72,8 @@
           type="text"
           :value="modelValue"
           @input="emits('update:modelValue', $event.target.value)"
-          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md required:true"
+          required
         />
       </div>
       <div v-else-if="question.type === 'textarea'">
@@ -77,6 +81,7 @@
           :value="modelValue"
           @input="emits('update:modelValue', $event.target.value)"
           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
+          required
         ></textarea>
       </div>
     </div>
