@@ -10,4 +10,8 @@ class SurveyQuestionAnswer extends Model
     use HasFactory;
 
     protected $fillable = ['survey_question_id', 'survey_answer_id', 'answer'];
+
+    public function survey_answer(){
+        return $this->belongsTo(SurveyAnswer::class);
+    }
 }

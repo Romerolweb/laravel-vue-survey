@@ -10,7 +10,7 @@ class SurveyResource extends JsonResource
     /**
      * Transform the resource into an array.
      *
-     * @param  \Illuminate\Http\Request  $request
+     * @param  \Illuminate\Http\Request $request
      * @return array|\Illuminate\Contracts\Support\Arrayable|\JsonSerializable
      */
     public function toArray($request)
@@ -25,7 +25,6 @@ class SurveyResource extends JsonResource
             'created_at' => (new \DateTime($this->created_at))->format('Y-m-d H:i:s'),
             'updated_at' => (new \DateTime($this->updated_at))->format('Y-m-d H:i:s'),
             'expire_date' => (new \DateTime($this->expire_date))->format('Y-m-d'),
-            'questions' => SurveyQuestionResource::collection($this->questions)
-        ];
+            'questions' => SurveyQuestionResource::collection($this->questions)];
     }
 }

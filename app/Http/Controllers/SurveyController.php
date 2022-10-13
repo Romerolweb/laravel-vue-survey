@@ -10,19 +10,26 @@ use App\Http\Requests\UpdateSurveyRequest;
 use App\Models\SurveyAnswer;
 use App\Models\SurveyQuestion;
 use App\Models\SurveyQuestionAnswer;
+use Exception;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\Routing\ResponseFactory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\ValidationException;
+use phpDocumentor\Reflection\Types\Collection;
 
 class SurveyController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Illuminate\Http\Response
+     * @return AnonymousResourceCollection
      */
     public function index(Request $request)
     {
@@ -34,10 +41,11 @@ class SurveyController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param \App\Http\Requests\StoreSurveyRequest $request
-     * @return \Illuminate\Http\Response
+     * @param StoreSurveyRequest $request
+     * @return SurveyResource
+     * @throws ValidationException
      */
-    public function store(StoreSurveyRequest $request)
+    public function store(StoreSurveyRequest $request): SurveyResource
     {
         $data = $request->validated();
 
@@ -61,10 +69,10 @@ class SurveyController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param \App\Models\Survey $survey
-     * @return \Illuminate\Http\Response
+     * @param Survey $survey
+     * @return SurveyResource
      */
-    public function show(Survey $survey, Request $request)
+    public function show(Survey $survey, Request $request): SurveyResource
     {
         $user = $request->user();
         if ($user->id !== $survey->user_id) {
@@ -75,10 +83,76 @@ class SurveyController extends Controller
     }
 
     /**
+     * @param Survey $survey
+     * @param Request $request
+     * @return array
+     */
+    public function showAnswers(Survey $survey, Request $request): array
+    {
+        $surveyAnswersResponse = $survey::query()
+            ->join('survey_answers', 'surveys.id', '=','survey_answers.survey_id')
+            ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
+            ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
+            ->where('surveys.status', '=', 1)
+            ->get(['survey_answer_id','answer','survey_question_id','question','survey_question_id']);
+
+        $answerData = [];
+        foreach ($surveyAnswersResponse as $surveyAnswer){
+            $answerData[$surveyAnswer->survey_answer_id][$surveyAnswer->survey_question_id] = $surveyAnswer->answer;
+        }
+
+        $questionData = $surveyAnswersResponse->unique('survey_question_id')
+            ->pluck('question','survey_question_id');
+
+        $data = [
+            "answers" => $answerData,
+            "questions" => $questionData,
+            "survey" => new SurveyResource($survey),
+        ];
+        return [
+            "data" => $data,
+        ];
+    }
+
+
+    /**
+     * @param Survey $survey
+     * @param Request $request
+     * @return array
+     */
+    public function showAnswersBySurvey(Survey $survey, Request $request): array
+    {
+        $surveyAnswersResponse = $survey::query()
+            ->join('survey_answers', 'surveys.id', '=','survey_answers.survey_id')
+            ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
+            ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
+            ->where('surveys.id', '=', $survey->id)
+            ->get(
+                ['survey_answer_id','answer','survey_question_id','survey_questions.question', 'survey_questions.type', 'survey_questions.description', 'survey_question_id','survey_answers.survey_id','surveys.slug','surveys.title']
+            );
+
+        $answerData = [];
+        foreach ($surveyAnswersResponse as $surveyAnswer){
+            $answerData[$surveyAnswer->survey_answer_id][$surveyAnswer->survey_question_id] = $surveyAnswer->answer;
+        }
+
+        $questionData = $surveyAnswersResponse->unique('survey_question_id');
+
+        $data = [
+        "answers" => $answerData,
+        "questions" => $questionData,
+        "survey" => new SurveyResource($survey),
+    ];
+        return [
+            "data" => $data,
+            ];
+    }
+    /**
      * Display the specified resource.
      *
-     * @param \App\Models\Survey $survey
-     * @return \Illuminate\Http\Response
+     * @param Survey $survey
+     * @return SurveyResource|Application|ResponseFactory|Response
+     * @throws Exception
      */
     public function showForGuest(Survey $survey)
     {
@@ -99,10 +173,10 @@ class SurveyController extends Controller
      * Update the specified resource in storage.
      *
      * @param \App\Http\Requests\UpdateSurveyRequest $request
-     * @param \App\Models\Survey                     $survey
-     * @return \Illuminate\Http\Response
+     * @param Survey $survey
+     * @return SurveyResource
      */
-    public function update(UpdateSurveyRequest $request, Survey $survey)
+    public function update(UpdateSurveyRequest $request, Survey $survey): SurveyResource
     {
         $data = $request->validated();
 
@@ -155,10 +229,10 @@ class SurveyController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param \App\Models\Survey $survey
-     * @return \Illuminate\Http\Response
+     * @param Survey $survey
+     * @return Response
      */
-    public function destroy(Survey $survey, Request $request)
+    public function destroy(Survey $survey, Request $request): Response
     {
         $user = $request->user();
         if ($user->id !== $survey->user_id) {
@@ -176,6 +250,11 @@ class SurveyController extends Controller
         return response('', 204);
     }
 
+    /**
+     * @param StoreSurveyAnswerRequest $request
+     * @param Survey $survey
+     * @return Application|ResponseFactory|Response
+     */
     public function storeAnswer(StoreSurveyAnswerRequest $request, Survey $survey)
     {
         $validated = $request->validated();
@@ -210,8 +289,8 @@ class SurveyController extends Controller
      * Create a question and return
      *
      * @param $data
-     * @return mixed
-     * @throws \Illuminate\Validation\ValidationException
+     * @return void
+     * @throws ValidationException
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
     private function createQuestion($data)
@@ -233,17 +312,16 @@ class SurveyController extends Controller
             'survey_id' => 'exists:App\Models\Survey,id'
         ]);
 
-        return SurveyQuestion::create($validator->validated());
+        SurveyQuestion::create($validator->validated());
     }
 
     /**
      * Update a question and return true or false
      *
-     * @param \App\Models\SurveyQuestion $question
+     * @param SurveyQuestion $question
      * @param                            $data
      * @return bool
-     * @throws \Illuminate\Validation\ValidationException
-     * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
+     * @throws ValidationException
      */
     private function updateQuestion(SurveyQuestion $question, $data)
     {
@@ -271,10 +349,11 @@ class SurveyController extends Controller
      * Save image in local file system and return saved image path
      *
      * @param $image
-     * @throws \Exception
+     * @return string
+     * @throws Exception
      * @author Zura Sekhniashvili <zurasekhniashvili@gmail.com>
      */
-    private function saveImage($image)
+    private function saveImage($image): string
     {
         // Check if image is valid base64 string
         if (preg_match('/^data:image\/(\w+);base64,/', $image, $type)) {
@@ -285,16 +364,16 @@ class SurveyController extends Controller
 
             // Check if file is an image
             if (!in_array($type, ['jpg', 'jpeg', 'gif', 'png'])) {
-                throw new \Exception('invalid image type');
+                throw new Exception('invalid image type');
             }
             $image = str_replace(' ', '+', $image);
             $image = base64_decode($image);
 
             if ($image === false) {
-                throw new \Exception('base64_decode failed');
+                throw new Exception('base64_decode failed');
             }
         } else {
-            throw new \Exception('did not match data URI with image data');
+            throw new Exception('did not match data URI with image data');
         }
 
         $dir = 'images/';

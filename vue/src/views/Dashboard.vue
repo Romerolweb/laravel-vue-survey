@@ -62,7 +62,8 @@
               Edit Survey
             </TButton>
 
-            <TButton link>
+            <TButton  :to="{ name: 'AnswersView', params: { id: data.latestSurvey.id } }"
+                      link>
               <EyeIcon class="w-5 h-5 mr-2" />
               View Answers
             </TButton>
@@ -75,14 +76,11 @@
       <DashboardCard class="order-4 lg:order-3 row-span-2" style="animation-delay: 0.3s">
         <template v-slot:title>
           <div class="flex justify-between items-center mb-3 px-2">
-            <h3 class="text-2xl font-semibold">Latest Answers</h3>
-
-            <a
-              href="javascript:void(0)"
-              class="text-sm text-blue-500 hover:decoration-blue-500"
-            >
-              View all
-            </a>
+            <h3 class="text-2xl font-semibold">Latest Answers * Ultimas respuestas</h3>
+              <TButton  :to="{ name: 'AnswersView', params: { id: data.latestSurvey.id } }"
+                        link class="text-sm text-blue-500 hover:decoration-blue-500">
+                Ver todo
+              </TButton>
           </div>
         </template>
 
@@ -95,7 +93,7 @@
           >
             <div class="font-semibold">{{ answer.survey.title }}</div>
             <small>
-              Answer Made at:
+              Hora de respuesta:
               <i class="font-semibold">{{ answer.end_date }}</i>
             </small>
           </a>
