@@ -73,7 +73,6 @@
           :value="modelValue"
           @input="emits('update:modelValue', $event.target.value)"
           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md required:true"
-          required
         />
       </div>
       <div v-else-if="question.type === 'textarea'">
@@ -81,9 +80,27 @@
           :value="modelValue"
           @input="emits('update:modelValue', $event.target.value)"
           class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md"
-          required
         ></textarea>
       </div>
+      <div v-else-if="question.type === 'int'">
+        <input
+          type="number"
+          :value="modelValue"
+          @input="emits('update:modelValue', $event.target.value)"
+          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md required:true"
+          required
+        />
+      </div>
+      <div v-else-if="question.type === 'footprint'">
+        <input
+          type="number"
+          :value="modelValue"
+          @input="emits('update:modelValue', $event.target.value)"
+          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md required:true"
+          required
+        />
+      </div>
+
     </div>
   </fieldset>
   <hr class="mb-4" />
