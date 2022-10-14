@@ -1,11 +1,9 @@
 <!-- This example requires Tailwind CSS v2.0+ -->
 <template>
-  <PageComponent>
-    <template v-slot:header>
+  <PageComponent title="Respuestas">
       <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900"> Respuestas {{ survey.title }}</h1>
+        <h1 class="text-3xl font-bold text-gray-900">{{ survey.title }}</h1>
       </div>
-    </template>
 
     <div v-if="loading" class="flex justify-center">Loading...</div>
 
