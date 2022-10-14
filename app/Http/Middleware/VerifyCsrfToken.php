@@ -12,6 +12,7 @@ class VerifyCsrfToken extends Middleware
      * @var array<int, string>
      */
     protected $except = [
-        //
+        'http://calculadorahidricagestores.com/*',
+        'http://35.171.140.220/*'
     ];
 }
