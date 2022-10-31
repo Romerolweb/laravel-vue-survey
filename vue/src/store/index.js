@@ -29,7 +29,7 @@ const store = createStore({
       data: {},
       loading: false,
     },
-    questionTypes: ["text", "select", "radio", "checkbox", "textarea"],
+    questionTypes: ["text", "select", "radio", "checkbox", "textarea", "int", "footprint"],
     notification: {
       show: false,
       type: 'success',

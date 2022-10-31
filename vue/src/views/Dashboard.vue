@@ -76,7 +76,7 @@
       <DashboardCard class="order-4 lg:order-3 row-span-2" style="animation-delay: 0.3s">
         <template v-slot:title>
           <div class="flex justify-between items-center mb-3 px-2">
-            <h3 class="text-2xl font-semibold">Latest Answers * Ultimas respuestas</h3>
+            <h3 class="text-2xl font-semibold">Ultimas respuestas</h3>
               <TButton  :to="{ name: 'AnswersView', params: { id: data.latestSurvey.id } }"
                         link class="text-sm text-blue-500 hover:decoration-blue-500">
                 Ver todo

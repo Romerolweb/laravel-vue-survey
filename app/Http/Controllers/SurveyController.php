@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
+use phpDocumentor\Reflection\Types\Collection;
 
 class SurveyController extends Controller
 {
@@ -88,12 +89,12 @@ class SurveyController extends Controller
      */
     public function showAnswers(Survey $survey, Request $request): array
     {
-
         $surveyAnswersResponse = $survey::query()
-        ->join('survey_answers', 'surveys.id', '=','survey_answers.survey_id')
-        ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
-        ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
-        ->get();
+            ->join('survey_answers', 'surveys.id', '=','survey_answers.survey_id')
+            ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
+            ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
+            ->where('surveys.status', '=', 1)
+            ->get(['survey_answer_id','answer','survey_question_id','question','survey_question_id']);
 
         $answerData = [];
         foreach ($surveyAnswersResponse as $surveyAnswer){
@@ -103,11 +104,13 @@ class SurveyController extends Controller
         $questionData = $surveyAnswersResponse->unique('survey_question_id')
             ->pluck('question','survey_question_id');
 
-
-        return [
-            "survey" => new SurveyResource($survey),
+        $data = [
+            "answers" => $answerData,
             "questions" => $questionData,
-            "answers" => $answerData
+            "survey" => new SurveyResource($survey),
+        ];
+        return [
+            "data" => $data,
         ];
     }
 
@@ -124,15 +127,16 @@ class SurveyController extends Controller
             ->join('survey_question_answers', 'survey_answers.id', '=','survey_question_answers.survey_answer_id')
             ->join('survey_questions', 'survey_question_answers.survey_question_id', '=','survey_questions.id')
             ->where('surveys.id', '=', $survey->id)
-            ->get();
+            ->get(
+                ['survey_answer_id','answer','survey_question_id','survey_questions.question', 'survey_questions.type', 'survey_questions.description', 'survey_question_id','survey_answers.survey_id','surveys.slug','surveys.title']
+            );
 
         $answerData = [];
         foreach ($surveyAnswersResponse as $surveyAnswer){
             $answerData[$surveyAnswer->survey_answer_id][$surveyAnswer->survey_question_id] = $surveyAnswer->answer;
         }
 
-        $questionData = $surveyAnswersResponse->unique('survey_question_id')
-            ->pluck('question','survey_question_id');
+        $questionData = $surveyAnswersResponse->unique('survey_question_id');
 
         $data = [
         "answers" => $answerData,
@@ -302,6 +306,8 @@ class SurveyController extends Controller
                 Survey::TYPE_SELECT,
                 Survey::TYPE_RADIO,
                 Survey::TYPE_CHECKBOX,
+                Survey::TYPE_INT,
+                Survey::TYPE_FOOTPRINT,
             ])],
             'description' => 'nullable|string',
             'data' => 'present',
@@ -333,6 +339,8 @@ class SurveyController extends Controller
                 Survey::TYPE_SELECT,
                 Survey::TYPE_RADIO,
                 Survey::TYPE_CHECKBOX,
+                Survey::TYPE_INT,
+                Survey::TYPE_FOOTPRINT,
             ])],
             'description' => 'nullable|string',
             'data' => 'present',

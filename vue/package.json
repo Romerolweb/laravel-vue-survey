@@ -2,9 +2,9 @@
   "name": "vue",
   "version": "0.0.0",
   "scripts": {
-    "dev": "vite",
+    "dev": "vite --host 0.0.0.0",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview --host 0.0.0.0"
   },
   "dependencies": {
     "@headlessui/vue": "^1.4.2",

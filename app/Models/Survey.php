@@ -16,6 +16,8 @@ class Survey extends Model
     const TYPE_SELECT = 'select';
     const TYPE_RADIO = 'radio';
     const TYPE_CHECKBOX = 'checkbox';
+    const TYPE_INT = 'int';
+    const TYPE_FOOTPRINT= 'footprint';
 
     protected $fillable = ['user_id', 'image', 'title', 'slug', 'status', 'description', 'expire_date'];
 

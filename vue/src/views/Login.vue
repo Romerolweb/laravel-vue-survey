@@ -6,16 +6,16 @@
       alt="Workflow"
     />
     <h2 class="mt-6 text-center text-3xl font-extrabold text-gray-900">
-      Sign in to your account
+      Inicia sesion en tu cuenta
     </h2>
     <p class="mt-2 text-center text-sm text-gray-600">
-      Or
+      Puedes
       {{ " " }}
       <router-link
         :to="{ name: 'Register' }"
         class="font-medium text-indigo-600 hover:text-indigo-500"
       >
-        register for free
+        Crear una cuenta gratis
       </router-link>
     </p>
   </div>
