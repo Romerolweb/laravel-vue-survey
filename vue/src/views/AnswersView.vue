@@ -1,18 +1,18 @@
 <!-- This example requires Tailwind CSS v2.0+ -->
 <template>
   <PageComponent title="Respuestas">
-      <div class="flex justify-between items-center">
-        <h1 class="text-3xl font-bold text-gray-900">{{ survey.title }}</h1>
-      </div>
-
     <div v-if="loading" class="flex justify-center">Loading...</div>
+
+      <div class="flex justify-between items-center">
+        <h1 v-if="survey" class="text-3xl font-bold text-gray-900">{{ survey.title }}</h1>
+      </div>
 
     <div>
       <div class="flex flex-col">
         <div class="overflow-x-auto">
           <div class="p-1.5 w-full inline-block align-middle">
             <div class="overflow-hidden border rounded-lg">
-              <h2 v-if="!questions"> NO se encontraron preguntas relacionadas a esta encuesta</h2>
+              <h3 v-if="!answers || answers.length === 0"> NO se encontraron respuestas relacionadas a esta encuesta.</h3>
 
               <table class="min-w-full divide-y divide-gray-200">
                 <thead class="bg-gray-50">
