@@ -14,11 +14,10 @@ class InsertSurveyAndQuestions extends Migration
      */
     public function up()
     {
-        $surveyData = [
-
-        ];
-
-//        DB::table('surveys')->insert($surveyData); // Query Builder approach
+        // This migration originally intended to seed data.
+        // This responsibility has been moved to SurveyQuestionsSeeder.php
+        // to centralize seeding logic and handle the specific "Calculadora Huella Hidrica" survey.
+        // Thus, this up() method will now do nothing.
     }
 
     /**
@@ -28,6 +27,8 @@ class InsertSurveyAndQuestions extends Migration
      */
     public function down()
     {
-        DB::table('surveys')->delete();
+        // Since the up() method does nothing, the down() method also does nothing.
+        // Any data seeded by SurveyQuestionsSeeder.php should be managed by that seeder
+        // or by a general database cleanup/reset process if needed, not this specific migration.
     }
 }

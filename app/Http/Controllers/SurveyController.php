@@ -136,16 +136,25 @@ class SurveyController extends Controller
             $answerData[$surveyAnswer->survey_answer_id][$surveyAnswer->survey_question_id] = $surveyAnswer->answer;
         }
 
-        $questionData = $surveyAnswersResponse->unique('survey_question_id');
+        $rawQuestions = $surveyAnswersResponse->unique('survey_question_id');
+        $questionData = $rawQuestions->map(function ($q) {
+            return [
+                'id' => $q->survey_question_id, // Ensure 'id' field for frontend consistency
+                'question' => $q->question,
+                'type' => $q->type,
+                'description' => $q->description,
+                // Potentially include other question fields if the view needs them
+            ];
+        })->values(); // ->values() to reset keys and ensure it's a simple array for Vue
 
         $data = [
-        "answers" => $answerData,
-        "questions" => $questionData,
-        "survey" => new SurveyResource($survey),
-    ];
+            "answers" => $answerData,
+            "questions" => $questionData,
+            "survey" => new SurveyResource($survey),
+        ];
         return [
             "data" => $data,
-            ];
+        ];
     }
     /**
      * Display the specified resource.
@@ -390,12 +399,5 @@ class SurveyController extends Controller
         file_put_contents($relativePath, $image);
 
         return $relativePath;
-    }
-
-    public function createQuestionAnswer($data)
-    {
-        if (is_array($data['answer'])) {
-            $data['answer'] = json_encode($data['answer']);
-        }
     }
 }

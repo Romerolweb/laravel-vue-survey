@@ -1,0 +1,81 @@
+version: '3.8'
+
+services:
+  # PHP Backend Service (Laravel)
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile
+    container_name: survey_backend
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html # Mount application code
+      # - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini # Optional: custom PHP config
+    environment:
+      # These will override .env file settings if .env is not perfectly set up for Docker
+      # Or, ensure your .env file is correctly configured and remove/comment these.
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_KEY: ${APP_KEY} # Should be set in .env file primarily
+      APP_URL: ${APP_URL:-http://localhost:8000} # URL backend is accessible from frontend/host
+      DB_CONNECTION: mysql
+      DB_HOST: db          # Service name of the MySQL container
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel_vue_survey}
+      DB_USERNAME: ${DB_USERNAME:-surveyuser} # Use a dedicated user
+      DB_PASSWORD: ${DB_PASSWORD:-surveypass} # Use a dedicated password
+      # For Vue frontend to connect to this backend:
+      # This is typically set in the Vue app's .env, not here.
+      # VITE_API_BASE_URL needs to be accessible from the Vue container or host.
+    depends_on:
+      - db
+    networks:
+      - survey_network
+    ports:
+      - "${BACKEND_PORT:-8000}:80" # Expose backend Nginx port 80 to host port 8000
+
+  # Vue.js Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        # This VITE_API_BASE_URL is used during the frontend build process.
+        # It should point to where the backend will be accessible from the user's browser.
+        # If backend is on port 8000, and frontend on 3000 (host machine ports)
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api}
+    container_name: survey_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80" # Expose frontend Nginx port 80 to host port 3000
+    depends_on:
+      - backend # Optional: if frontend needs backend up during its own startup (not typical for SPA build)
+    networks:
+      - survey_network
+
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: survey_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel_vue_survey}
+      MYSQL_USER: ${DB_USERNAME:-surveyuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-surveypass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootsecret} # Secure root password
+    volumes:
+      - survey_db_data:/var/lib/mysql # Persist database data
+      # Optional: Mount custom MySQL config
+      # - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf
+    ports:
+      - "${DB_FORWARD_PORT:-33060}:3306" # Forward MySQL port for external access if needed
+    networks:
+      - survey_network
+
+networks:
+  survey_network:
+    driver: bridge
+
+volumes:
+  survey_db_data: # Named volume for database persistence
+    driver: local
