@@ -20,28 +20,31 @@ Built with these technologies for [YouTube Video](https://youtu.be/WLQDpY7lOLg)
 
 
 ## Requirements
-You need to have PHP version **8.0** or above. Node.js version **12.0** or above.
+
+The primary method for running this project is using Docker and Docker Compose.
+*   **Docker**: [Install Docker](https://docs.docker.com/get-docker/)
+*   **Docker Compose**: [Install Docker Compose](https://docs.docker.com/compose/install/)
+
+For manual local development outside of Docker (not covered by the primary deployment guide), you would need:
+*   PHP version **8.2** or above (due to Laravel Octane and FrankenPHP integration).
+*   Node.js version **18.0** or above (for Vue.js frontend).
+*   Composer for PHP dependencies.
+*   NPM for Node.js dependencies.
+*   A MySQL database server.
 
 ## Demo
-https://yoursurveys.xyz
+https://yoursurveys.xyz (Note: This is a placeholder link from the original project.)
 
 
-## Installation
+## Quick Start / Deployment
 
-#### Backend
-1. Clone the project
-2. Go to the project root directory
-3. Run `composer install`
-4. Create database
-5. Copy `.env.example` into `.env` file and adjust parameters
-6. Run `php artisan serve` to start the project at http://localhost:8000
+For detailed setup and deployment instructions using Docker (recommended), please see:
+**[DEPLOYMENT.md](DEPLOYMENT.md)**
 
-#### Frontend
-1. Navigate to `vue` folder using terminal
-2. Run `npm install` to install vue.js project dependencies
-3. Copy `vue/.env.example` into `vue/.env` and specify API URL
-4. Start frontend by running `npm run dev`
-5. Open http://localhost:3000
+This guide covers:
+*   Configuring your environment.
+*   Building and running the application with Docker Compose.
+*   Service details (Backend with FrankenPHP, Frontend, Database).
 
 
 ## License

@@ -11,11 +11,13 @@ set -e
 # echo "Database is up."
 
 # Run Composer Install if vendor directory doesn't exist or is empty
+# This is mainly for development with mounted volumes overriding the built vendor dir.
+# The Dockerfile already runs composer install.
 if [ ! -d "vendor" ] || [ -z "$(ls -A vendor)" ]; then
-  echo "Vendor directory not found or empty. Running composer install..."
+  echo "Vendor directory not found or empty. Running composer install (no-dev)..."
   composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
 else
-  echo "Vendor directory exists. Skipping composer install."
+  echo "Vendor directory exists. Assuming dependencies are up-to-date from Docker build or host."
 fi
 
 # Generate app key if it doesn't exist (check .env or a dedicated marker)

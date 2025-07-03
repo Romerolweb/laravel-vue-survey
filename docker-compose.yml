@@ -5,34 +5,33 @@ services:
   backend:
     build:
       context: .
-      dockerfile: backend.Dockerfile
-    container_name: survey_backend
+      dockerfile: backend.Dockerfile # This Dockerfile now uses FrankenPHP
+    container_name: survey_backend_frankenphp # Renamed for clarity
     restart: unless-stopped
     volumes:
-      - .:/var/www/html # Mount application code
-      # - ./docker/php/php.ini:/usr/local/etc/php/conf.d/custom.ini # Optional: custom PHP config
+      - .:/app # Mount application code to /app (WORKDIR in new Dockerfile)
     environment:
-      # These will override .env file settings if .env is not perfectly set up for Docker
-      # Or, ensure your .env file is correctly configured and remove/comment these.
       APP_ENV: ${APP_ENV:-local}
       APP_DEBUG: ${APP_DEBUG:-true}
-      APP_KEY: ${APP_KEY} # Should be set in .env file primarily
-      APP_URL: ${APP_URL:-http://localhost:8000} # URL backend is accessible from frontend/host
+      APP_KEY: ${APP_KEY} # Should be set in Laravel's .env file primarily
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr} # Good for Docker to see logs
       DB_CONNECTION: mysql
-      DB_HOST: db          # Service name of the MySQL container
+      DB_HOST: db
       DB_PORT: 3306
       DB_DATABASE: ${DB_DATABASE:-laravel_vue_survey}
-      DB_USERNAME: ${DB_USERNAME:-surveyuser} # Use a dedicated user
-      DB_PASSWORD: ${DB_PASSWORD:-surveypass} # Use a dedicated password
-      # For Vue frontend to connect to this backend:
-      # This is typically set in the Vue app's .env, not here.
-      # VITE_API_BASE_URL needs to be accessible from the Vue container or host.
+      DB_USERNAME: ${DB_USERNAME:-surveyuser}
+      DB_PASSWORD: ${DB_PASSWORD:-surveypass}
+      OCTANE_SERVER: frankenphp # Ensure Octane uses FrankenPHP
+      # FrankenPHP/Caddy specific ENVs if needed, e.g. for HTTPS
+      # SERVER_NAME: ":80" # Or your domain
     depends_on:
       - db
     networks:
       - survey_network
     ports:
-      - "${BACKEND_PORT:-8000}:80" # Expose backend Nginx port 80 to host port 8000
+      # The backend container (FrankenPHP/Octane) now listens on port 80 as per Dockerfile CMD
+      - "${BACKEND_PORT:-8000}:80"
 
   # Vue.js Frontend Service
   frontend:
