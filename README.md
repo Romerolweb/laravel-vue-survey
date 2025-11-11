@@ -65,6 +65,17 @@ This guide covers:
 *   Building and running the application with Docker Compose.
 *   Service details (Backend with FrankenPHP, Frontend, Database).
 
+## CI/CD
+
+This project includes comprehensive CI/CD pipelines using GitHub Actions:
+
+- **Laravel CI**: Automated testing with PHPUnit, code quality checks (PHP 8.2, 8.3)
+- **Vue CI**: Build verification, security audits, multi-version testing (Node 18, 20)
+- **Docker CI**: Container builds, integration tests, automated deployment
+
+For detailed information about CI/CD setup and usage, see:
+**[CI_CD.md](CI_CD.md)** - Complete CI/CD pipeline documentation
+
 
 ## License
 
