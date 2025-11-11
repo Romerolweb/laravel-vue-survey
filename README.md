@@ -18,6 +18,25 @@ Built with these technologies for [YouTube Video](https://youtu.be/WLQDpY7lOLg)
     </tr>
 </table> 
 
+## Features
+
+### Core Survey Platform
+- Create and manage surveys with multiple question types
+- User authentication and authorization
+- Public survey links for data collection
+- Dashboard for viewing survey responses
+
+### Environmental Research Features
+This application includes specialized features for environmental research projects:
+
+- **GPS Location Collection**: Automatically collect location data (with user consent) when surveys are completed
+- **Environmental Footprint Calculation**: Automated calculation of water footprint for wine production surveys
+- **Research Documentation**: Comprehensive documentation for research methodology and data analysis
+
+For detailed information about environmental features, see:
+- **[ENVIRONMENTAL_FOOTPRINT.md](ENVIRONMENTAL_FOOTPRINT.md)** - Technical documentation
+- **[RESEARCH_PROJECT.md](RESEARCH_PROJECT.md)** - Research methodology and project overview
+
 
 ## Requirements
 
