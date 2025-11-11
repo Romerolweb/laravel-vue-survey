@@ -57,6 +57,28 @@ https://yoursurveys.xyz (Note: This is a placeholder link from the original proj
 
 ## Quick Start / Deployment
 
+### Development Scripts
+
+Convenient scripts are provided for common development tasks:
+
+```bash
+# Setup development environment (first time)
+./scripts/setup-dev.sh
+
+# Start development servers (backend + frontend)
+./scripts/dev.sh
+
+# Run tests
+./scripts/test.sh
+
+# Build for production
+./scripts/build.sh
+```
+
+See **[scripts/README.md](scripts/README.md)** for detailed script documentation.
+
+### Docker Deployment
+
 For detailed setup and deployment instructions using Docker (recommended), please see:
 **[DEPLOYMENT.md](DEPLOYMENT.md)**
 
@@ -64,6 +86,22 @@ This guide covers:
 *   Configuring your environment.
 *   Building and running the application with Docker Compose.
 *   Service details (Backend with FrankenPHP, Frontend, Database).
+
+## Documentation
+
+### New Features
+- **[FEATURES.md](FEATURES.md)** - Complete guide to GPS location collection and environmental footprint calculation
+
+### Research & Environmental
+- **[ENVIRONMENTAL_FOOTPRINT.md](ENVIRONMENTAL_FOOTPRINT.md)** - Technical documentation for footprint calculator
+- **[RESEARCH_PROJECT.md](RESEARCH_PROJECT.md)** - Research methodology and project overview
+
+### Development
+- **[scripts/README.md](scripts/README.md)** - Development and build scripts guide
+- **[CI_CD.md](CI_CD.md)** - CI/CD pipeline documentation
+
+### Deployment
+- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Docker deployment guide
 
 ## CI/CD
 
