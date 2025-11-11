@@ -24,7 +24,9 @@ class StoreSurveyAnswerRequest extends FormRequest
     public function rules()
     {
         return [
-            'answers' => 'required|array'
+            'answers' => 'required|array',
+            'latitude' => 'nullable|numeric|between:-90,90',
+            'longitude' => 'nullable|numeric|between:-180,180',
         ];
     }
 }

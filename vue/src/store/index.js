@@ -145,8 +145,13 @@ const store = createStore({
         return res;
       });
     },
-    saveSurveyAnswer({commit}, {surveyId, answers}) {
-      return axiosClient.post(`/survey/${surveyId}/answer`, {answers});
+    saveSurveyAnswer({commit}, {surveyId, answers, latitude, longitude}) {
+      const payload = {answers};
+      if (latitude !== undefined && longitude !== undefined) {
+        payload.latitude = latitude;
+        payload.longitude = longitude;
+      }
+      return axiosClient.post(`/survey/${surveyId}/answer`, payload);
     },
     getAnswers({ commit }, {url = null} = {}) {
       commit('setAnswersLoading', true)
