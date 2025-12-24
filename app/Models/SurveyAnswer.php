@@ -12,7 +12,7 @@ class SurveyAnswer extends Model
     public const CREATED_AT = null;
     public const UPDATED_AT = null;
 
-    protected $fillable = ['survey_id', 'start_date', 'end_date'];
+    protected $fillable = ['survey_id', 'start_date', 'end_date', 'latitude', 'longitude', 'calculated_footprint'];
 
     public function survey()
     {

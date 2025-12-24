@@ -10,6 +10,7 @@ use App\Http\Requests\UpdateSurveyRequest;
 use App\Models\SurveyAnswer;
 use App\Models\SurveyQuestion;
 use App\Models\SurveyQuestionAnswer;
+use App\Services\FootprintCalculatorService;
 use Exception;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Contracts\Routing\ResponseFactory;
@@ -18,6 +19,7 @@ use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -269,10 +271,23 @@ class SurveyController extends Controller
         $validated = $request->validated();
 //        var_dump($validated, $survey);
 
+        // Extract GPS coordinates if provided
+        $latitude = $validated['latitude'] ?? null;
+        $longitude = $validated['longitude'] ?? null;
+        
+        // Create the survey answer with GPS data
         $surveyAnswer = SurveyAnswer::create([
             'survey_id' => $survey->id,
             'start_date' => date('Y-m-d H:i:s'),
             'end_date' => date('Y-m-d H:i:s'),
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+        ]);
+        
+        Log::info('Survey answer created', [
+            'survey_id' => $survey->id,
+            'answer_id' => $surveyAnswer->id,
+            'has_gps' => ($latitude !== null && $longitude !== null)
         ]);
 
         foreach ($validated['answers'] as $questionId => $answer) {
@@ -288,6 +303,29 @@ class SurveyController extends Controller
             ];
 
             $questionAnswer = SurveyQuestionAnswer::create($data);
+        }
+        
+        // Calculate environmental footprint if survey is about environmental impact
+        try {
+            $footprintService = new FootprintCalculatorService();
+            $calculatedFootprint = $footprintService->calculateWaterFootprint($validated['answers']);
+            
+            if ($calculatedFootprint !== null) {
+                $surveyAnswer->calculated_footprint = $calculatedFootprint;
+                $surveyAnswer->save();
+                
+                Log::info('Footprint calculated', [
+                    'answer_id' => $surveyAnswer->id,
+                    'footprint' => $calculatedFootprint,
+                    'interpretation' => $footprintService->getFootprintInterpretation($calculatedFootprint)
+                ]);
+            }
+        } catch (\Exception $e) {
+            // Log error but don't fail the request
+            Log::error('Failed to calculate footprint', [
+                'error' => $e->getMessage(),
+                'answer_id' => $surveyAnswer->id
+            ]);
         }
 
         return response("", 201);
