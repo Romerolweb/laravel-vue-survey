@@ -178,8 +178,6 @@ function requestGPSPermission(allow) {
 }
 
 function submitSurvey() {
-  console.log(JSON.stringify(answers.value, undefined, 2));
-  
   // Prepare submission data with GPS coordinates if available
   const submissionData = {
     surveyId: survey.value.id,
