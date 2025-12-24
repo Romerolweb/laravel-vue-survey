@@ -146,7 +146,7 @@ class FootprintCalculatorService
         } catch (\Exception $e) {
             Log::error('FootprintCalculator: Error calculating footprint', [
                 'error' => $e->getMessage(),
-                'answers' => $answers
+                'trace' => $e->getTraceAsString()
             ]);
             return null;
         }

@@ -167,7 +167,6 @@ function requestGPSPermission(allow) {
         type: 'error',
         message: errorMessage
       };
-      console.error('GPS error:', error);
     },
     {
       enableHighAccuracy: true,
