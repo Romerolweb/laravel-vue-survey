@@ -21,8 +21,8 @@
       <div v-else>
         <hr class="my-3">
         
-        <!-- GPS Location Permission Request -->
-        <div v-if="!gpsPermissionAsked" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <!-- GPS Location Permission Request (shown after user starts survey) -->
+        <div v-if="showGPSPrompt && !gpsPermissionAsked" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
           <div class="flex items-start">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -30,7 +30,14 @@
               </svg>
             </div>
             <div class="ml-3 flex-1">
-              <h3 class="text-sm font-medium text-blue-800">Location Data for Environmental Research</h3>
+              <div class="flex items-center justify-between">
+                <h3 class="text-sm font-medium text-blue-800">Location Data for Environmental Research</h3>
+                <button @click="showGPSPrompt = false; gpsPermissionDismissed = true" type="button" class="text-blue-400 hover:text-blue-600">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
               <div class="mt-2 text-sm text-blue-700">
                 <p>This survey is part of an environmental research project. Would you like to share your location? This helps us analyze regional environmental impact patterns.</p>
               </div>
@@ -70,7 +77,7 @@
 </template>
 
 <script setup>
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useRoute } from "vue-router";
 import { useStore } from "vuex";
 import QuestionViewer from "../components/viewer/QuestionViewer.vue";
@@ -86,10 +93,29 @@ const answers = ref({});
 
 // GPS-related state
 const gpsPermissionAsked = ref(false);
+const gpsPermissionDismissed = ref(false);
 const gpsCoordinates = ref(null);
 const gpsStatus = ref(null);
+const showGPSPrompt = ref(false);
+
+// GPS UI configuration
+const GPS_PROMPT_DELAY_MS = 2000; // Delay before showing GPS prompt after user interaction
 
 store.dispatch("getSurveyBySlug", route.params.slug);
+
+/**
+ * Watch for user interaction with survey to show GPS prompt
+ * This creates a less intrusive experience by waiting until
+ * the user has started filling out the survey
+ */
+watch(answers, (newAnswers) => {
+  if (Object.keys(newAnswers).length > 0 && !gpsPermissionAsked.value && !gpsPermissionDismissed.value && !showGPSPrompt.value) {
+    // Delay showing the prompt to let user focus on the question first
+    setTimeout(() => {
+      showGPSPrompt.value = true;
+    }, GPS_PROMPT_DELAY_MS);
+  }
+}, { deep: true });
 
 /**
  * Request GPS permission from user
@@ -97,12 +123,15 @@ store.dispatch("getSurveyBySlug", route.params.slug);
  */
 function requestGPSPermission(allow) {
   gpsPermissionAsked.value = true;
+  showGPSPrompt.value = false;
   
   if (!allow) {
     gpsStatus.value = {
       type: 'info',
       message: 'Continuing without location data. Your responses will still be recorded.'
     };
+    // Store preference to avoid asking again
+    gpsPermissionDismissed.value = true;
     return;
   }
   
@@ -131,7 +160,6 @@ function requestGPSPermission(allow) {
         type: 'success',
         message: '✓ Location captured successfully for environmental research.'
       };
-      console.log('GPS coordinates captured:', gpsCoordinates.value);
     },
     (error) => {
       let errorMessage = 'Unable to retrieve location. ';
@@ -175,7 +203,6 @@ function submitSurvey() {
   if (gpsCoordinates.value) {
     submissionData.latitude = gpsCoordinates.value.latitude;
     submissionData.longitude = gpsCoordinates.value.longitude;
-    console.log('Submitting with GPS coordinates:', gpsCoordinates.value);
   }
   
   store
@@ -190,9 +217,8 @@ function submitSurvey() {
 function submitAnotherResponse() {
   answers.value = {};
   surveyFinished.value = false;
-  gpsPermissionAsked.value = false;
-  gpsCoordinates.value = null;
-  gpsStatus.value = null;
+  // Preserve GPS permission state for subsequent submissions
+  // User preference is remembered within the session
 }
 </script>
 
