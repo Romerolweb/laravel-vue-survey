@@ -98,8 +98,9 @@ const gpsCoordinates = ref(null);
 const gpsStatus = ref(null);
 const showGPSPrompt = ref(false);
 
-// GPS UI configuration
-const GPS_PROMPT_DELAY_MS = 2000; // Delay before showing GPS prompt after user interaction
+// GPS UI configuration - delay before showing GPS prompt after user interaction
+const GPS_PROMPT_DELAY_MS = 2000;
+const userInteracted = ref(false); // Track if user has answered at least one question
 
 store.dispatch("getSurveyBySlug", route.params.slug);
 
@@ -109,11 +110,16 @@ store.dispatch("getSurveyBySlug", route.params.slug);
  * the user has started filling out the survey
  */
 watch(answers, (newAnswers) => {
-  if (Object.keys(newAnswers).length > 0 && !gpsPermissionAsked.value && !gpsPermissionDismissed.value && !showGPSPrompt.value) {
-    // Delay showing the prompt to let user focus on the question first
-    setTimeout(() => {
-      showGPSPrompt.value = true;
-    }, GPS_PROMPT_DELAY_MS);
+  // Only trigger once when user first interacts
+  if (!userInteracted.value && Object.keys(newAnswers).length > 0) {
+    userInteracted.value = true;
+    // Only show prompt if not already asked or dismissed
+    if (!gpsPermissionAsked.value && !gpsPermissionDismissed.value) {
+      // Delay showing the prompt to let user focus on the question first
+      setTimeout(() => {
+        showGPSPrompt.value = true;
+      }, GPS_PROMPT_DELAY_MS);
+    }
   }
 }, { deep: true });
 
@@ -180,7 +186,6 @@ function requestGPSPermission(allow) {
         type: 'error',
         message: errorMessage
       };
-      console.error('GPS error:', error);
     },
     {
       enableHighAccuracy: true,
@@ -191,8 +196,6 @@ function requestGPSPermission(allow) {
 }
 
 function submitSurvey() {
-  console.log(JSON.stringify(answers.value, undefined, 2));
-  
   // Prepare submission data with GPS coordinates if available
   const submissionData = {
     surveyId: survey.value.id,
