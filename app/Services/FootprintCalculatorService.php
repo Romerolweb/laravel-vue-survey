@@ -137,7 +137,8 @@ class FootprintCalculatorService
                             break;
                         }
                     }
-                    if ($waterReuse === 'No') {
+                    // Only check for partial reuse if full reuse wasn't found
+                    if ($waterReuse !== 'Full') {
                         foreach (self::WATER_REUSE_PATTERNS['partial'] as $pattern) {
                             if (stripos($answer, $pattern) !== false) {
                                 $waterReuse = 'Partial';
