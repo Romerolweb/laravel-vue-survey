@@ -33,6 +33,29 @@ class FootprintCalculatorService
     const WASTE_DISCHARGE_IMPACT_FACTOR = 1.1; // 10% increase if discharge is to surface water
     
     /**
+     * Configuration for answer pattern matching
+     * These patterns are used to identify answer types from survey responses.
+     * Note: Currently configured for Spanish language surveys.
+     * TODO: Implement internationalization or question metadata-based approach
+     */
+    const WATER_REUSE_PATTERNS = [
+        'full' => ['totalmente', 'Sí, totalmente', 'completely', 'yes, completely'],
+        'partial' => ['parcialmente', 'Sí, parcialmente', 'partially', 'yes, partially']
+    ];
+    
+    const DISCHARGE_METHOD_PATTERNS = [
+        'surface_water' => ['superficial', 'Cuerpo de agua superficial', 'surface water']
+    ];
+    
+    /**
+     * Heuristic thresholds for numeric answer detection
+     * These values help distinguish between different types of numeric answers.
+     * Note: This is a fallback approach when question metadata is not available.
+     * Consider using question tags or metadata for more reliable identification.
+     */
+    const WATER_CONSUMPTION_MIN_THRESHOLD = 1000; // Minimum value to identify as water consumption (liters)
+    
+    /**
      * Calculate the water footprint based on survey answers
      * 
      * This method analyzes survey responses to determine the water consumption
@@ -56,32 +79,49 @@ class FootprintCalculatorService
             $dischargeMethod = null;
             
             // Extract relevant values from survey answers
-            // Note: We need to match questions by their content since IDs may vary
+            // Note: This uses heuristic-based detection. For production use, consider:
+            // - Using question metadata/tags to identify question types
+            // - Configuring specific question IDs for each data point
+            // - Implementing a question type system in the database
             foreach ($answers as $questionId => $answer) {
-                // These are approximations - in production, you'd use question IDs or types
+                // Process numeric answers
                 if (is_numeric($answer)) {
                     $numericValue = floatval($answer);
                     
-                    // Heuristic: larger values are likely water consumption
-                    // smaller values are likely wine production
-                    if ($waterConsumption === null && $numericValue > 1000) {
+                    // Use threshold-based heuristic to distinguish answer types
+                    // Values above threshold are likely water consumption (in liters)
+                    // Values below threshold are likely wine production (in liters)
+                    if ($waterConsumption === null && $numericValue >= self::WATER_CONSUMPTION_MIN_THRESHOLD) {
                         $waterConsumption = $numericValue;
-                    } elseif ($wineProduction === null && $numericValue > 0) {
+                    } elseif ($wineProduction === null && $numericValue > 0 && $numericValue < self::WATER_CONSUMPTION_MIN_THRESHOLD) {
                         $wineProduction = $numericValue;
                     }
                 }
                 
-                // Check for water reuse answers
+                // Process string answers for water reuse and discharge method
                 if (is_string($answer)) {
-                    if (stripos($answer, 'totalmente') !== false || stripos($answer, 'Sí, totalmente') !== false) {
-                        $waterReuse = 'Full';
-                    } elseif (stripos($answer, 'parcialmente') !== false || stripos($answer, 'Sí, parcialmente') !== false) {
-                        $waterReuse = 'Partial';
+                    // Check water reuse patterns
+                    foreach (self::WATER_REUSE_PATTERNS['full'] as $pattern) {
+                        if (stripos($answer, $pattern) !== false) {
+                            $waterReuse = 'Full';
+                            break;
+                        }
+                    }
+                    if ($waterReuse === 'No') {
+                        foreach (self::WATER_REUSE_PATTERNS['partial'] as $pattern) {
+                            if (stripos($answer, $pattern) !== false) {
+                                $waterReuse = 'Partial';
+                                break;
+                            }
+                        }
                     }
                     
-                    // Check discharge method
-                    if (stripos($answer, 'superficial') !== false || stripos($answer, 'Cuerpo de agua superficial') !== false) {
-                        $dischargeMethod = 'surface_water';
+                    // Check discharge method patterns
+                    foreach (self::DISCHARGE_METHOD_PATTERNS['surface_water'] as $pattern) {
+                        if (stripos($answer, $pattern) !== false) {
+                            $dischargeMethod = 'surface_water';
+                            break;
+                        }
                     }
                 }
             }

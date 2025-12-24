@@ -4,6 +4,11 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
+/**
+ * Note: The "2025_11_11" timestamp in this migration's filename is intentional.
+ * It is used to control migration execution order and does not reflect a real
+ * calendar date. The actual creation date may differ.
+ */
 class AddGpsAndFootprintToSurveyAnswers extends Migration
 {
     /**
