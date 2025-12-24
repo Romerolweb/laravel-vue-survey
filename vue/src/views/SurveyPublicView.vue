@@ -22,7 +22,7 @@
         <hr class="my-3">
         
         <!-- GPS Location Permission Request -->
-        <div v-if="!gpsPermissionAsked" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+        <div v-if="!gpsPermissionAsked && gpsPermissionShown" class="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
           <div class="flex items-start">
             <div class="flex-shrink-0">
               <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -55,6 +55,7 @@
             v-model="answers[question.id]"
             :question="question"
             :index="ind"
+            @update:modelValue="onAnswerChange"
           />
         </div>
 
@@ -86,10 +87,25 @@ const answers = ref({});
 
 // GPS-related state
 const gpsPermissionAsked = ref(false);
+const gpsPermissionShown = ref(false);
 const gpsCoordinates = ref(null);
 const gpsStatus = ref(null);
+const userHasInteracted = ref(false);
 
 store.dispatch("getSurveyBySlug", route.params.slug);
+
+/**
+ * Handle answer change - show GPS permission after first interaction
+ */
+function onAnswerChange() {
+  if (!userHasInteracted.value) {
+    userHasInteracted.value = true;
+    // Show GPS permission request after user starts filling the survey
+    setTimeout(() => {
+      gpsPermissionShown.value = true;
+    }, 500);
+  }
+}
 
 /**
  * Request GPS permission from user
@@ -131,7 +147,6 @@ function requestGPSPermission(allow) {
         type: 'success',
         message: '✓ Location captured successfully for environmental research.'
       };
-      console.log('GPS coordinates captured:', gpsCoordinates.value);
     },
     (error) => {
       let errorMessage = 'Unable to retrieve location. ';
@@ -175,7 +190,6 @@ function submitSurvey() {
   if (gpsCoordinates.value) {
     submissionData.latitude = gpsCoordinates.value.latitude;
     submissionData.longitude = gpsCoordinates.value.longitude;
-    console.log('Submitting with GPS coordinates:', gpsCoordinates.value);
   }
   
   store

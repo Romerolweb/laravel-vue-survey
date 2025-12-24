@@ -320,10 +320,11 @@ class SurveyController extends Controller
                     'interpretation' => $footprintService->getFootprintInterpretation($calculatedFootprint)
                 ]);
             }
-        } catch (\Exception $e) {
-            // Log error but don't fail the request
+        } catch (\InvalidArgumentException|\RuntimeException $e) {
+            // Log error but don't fail the request for known calculation issues
             Log::error('Failed to calculate footprint', [
                 'error' => $e->getMessage(),
+                'exception_class' => get_class($e),
                 'answer_id' => $surveyAnswer->id
             ]);
         }

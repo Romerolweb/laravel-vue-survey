@@ -37,7 +37,8 @@ RUN install-php-extensions \
     sockets # Often useful for Octane or other tools
 
 # Install Composer globally
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+# Pin to specific version to avoid supply chain risks
+COPY --from=composer:2.8 /usr/bin/composer /usr/bin/composer
 
 # Copy application code
 # We'll copy specific files first for better layer caching with composer

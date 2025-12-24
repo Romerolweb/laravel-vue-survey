@@ -43,6 +43,24 @@ class FootprintCalculatorService
      * 3. Water reuse practices (Question about water reuse)
      * 4. Waste water discharge method (Question about discharge location)
      * 
+     * IMPORTANT LIMITATIONS:
+     * 
+     * - Language Dependency: String matching currently uses Spanish text patterns
+     *   (e.g., 'totalmente', 'parcialmente', 'superficial'). The service is tightly
+     *   coupled to Spanish language surveys. For multi-language support, consider:
+     *   * Using configuration or constants for expected answer patterns
+     *   * Implementing language-agnostic approach using question metadata
+     *   * Internationalizing the matching patterns
+     * 
+     * - Heuristic-Based Detection: This service uses heuristic-based answer detection,
+     *   checking if numeric values are > 1000 to determine if they're water consumption
+     *   vs. wine production. This approach is fragile and could fail if:
+     *   * A small producer has water consumption under 1000 liters
+     *   * A large producer has wine production over 1000 liters
+     *   * Questions are reordered or IDs change
+     *   Consider using: question text matching, question type metadata, specific
+     *   question IDs configuration, or a question tagging system.
+     * 
      * @param array $answers Array of survey question answers
      * @return float|null The calculated water footprint value in cubic meters, or null if insufficient data
      */
