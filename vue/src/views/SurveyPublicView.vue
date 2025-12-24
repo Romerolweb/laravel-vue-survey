@@ -86,6 +86,7 @@ const surveyFinished = ref(false);
 const answers = ref({});
 
 // GPS-related state
+const GPS_PERMISSION_DELAY_MS = 500; // Delay before showing GPS permission after first interaction
 const gpsPermissionAsked = ref(false);
 const gpsPermissionShown = ref(false);
 const gpsCoordinates = ref(null);
@@ -103,7 +104,7 @@ function onAnswerChange() {
     // Show GPS permission request after user starts filling the survey
     setTimeout(() => {
       gpsPermissionShown.value = true;
-    }, 500);
+    }, GPS_PERMISSION_DELAY_MS);
   }
 }
 

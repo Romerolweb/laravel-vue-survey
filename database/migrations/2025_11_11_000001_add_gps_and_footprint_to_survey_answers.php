@@ -5,9 +5,11 @@ use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 /**
- * Note: The "2025_11_11" timestamp in this migration's filename is intentional.
- * It is used to control migration execution order and does not reflect a real
- * calendar date. The actual creation date may differ.
+ * Note: The "2025_11_11" timestamp in this migration's filename is intentional
+ * and does not reflect a real calendar date. Migration files are executed in
+ * chronological order based on their timestamp prefix. This particular date was
+ * chosen to ensure this migration runs after all existing migrations while
+ * maintaining a predictable ordering for GPS and footprint feature additions.
  */
 class AddGpsAndFootprintToSurveyAnswers extends Migration
 {
