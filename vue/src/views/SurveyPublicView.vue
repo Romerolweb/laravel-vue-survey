@@ -98,6 +98,9 @@ const gpsCoordinates = ref(null);
 const gpsStatus = ref(null);
 const showGPSPrompt = ref(false);
 
+// GPS UI configuration
+const GPS_PROMPT_DELAY_MS = 2000; // Delay before showing GPS prompt after user interaction
+
 store.dispatch("getSurveyBySlug", route.params.slug);
 
 /**
@@ -110,7 +113,7 @@ watch(answers, (newAnswers) => {
     // Delay showing the prompt to let user focus on the question first
     setTimeout(() => {
       showGPSPrompt.value = true;
-    }, 2000);
+    }, GPS_PROMPT_DELAY_MS);
   }
 }, { deep: true });
 

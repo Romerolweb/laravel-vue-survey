@@ -51,7 +51,19 @@ class FootprintCalculatorService
      * Heuristic thresholds for numeric answer detection
      * These values help distinguish between different types of numeric answers.
      * Note: This is a fallback approach when question metadata is not available.
-     * Consider using question tags or metadata for more reliable identification.
+     * 
+     * WATER_CONSUMPTION_MIN_THRESHOLD: The minimum value (in liters) to identify 
+     * an answer as water consumption rather than wine production. This threshold
+     * is based on typical production scales where:
+     * - Wine production is typically measured in hundreds of liters
+     * - Water consumption is typically measured in thousands of liters
+     * 
+     * Limitation: This heuristic may fail if:
+     * - Small producers have water consumption < 1000 liters
+     * - Large producers have wine production > 1000 liters
+     * 
+     * TODO: Consider making this configurable via environment variables or
+     * implementing a question metadata/tagging system for more reliable identification.
      */
     const WATER_CONSUMPTION_MIN_THRESHOLD = 1000; // Minimum value to identify as water consumption (liters)
     
