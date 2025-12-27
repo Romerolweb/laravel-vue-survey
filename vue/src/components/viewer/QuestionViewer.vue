@@ -92,13 +92,30 @@
         />
       </div>
       <div v-else-if="question.type === 'footprint'">
-        <input
-          type="number"
-          :value="modelValue"
-          @input="emits('update:modelValue', $event.target.value)"
-          class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md required:true"
-          required
-        />
+        <!-- Render footprint as radio buttons, similar to 'radio' type -->
+        <!-- This needs to handle options that might be strings or objects {uuid, text} -->
+        <div
+          v-for="(option, optIndex) in question.data.options"
+          :key="typeof option === 'object' ? option.uuid : `${question.id}-${option}-${optIndex}`"
+          class="flex items-center"
+        >
+          <input
+            :id="typeof option === 'object' ? option.uuid : `${question.id}-${option}-${optIndex}`"
+            :name="'question' + question.id"
+            :value="typeof option === 'object' ? option.text : option"
+            @change="emits('update:modelValue', $event.target.value)"
+            type="radio"
+            class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300"
+            :checked="modelValue === (typeof option === 'object' ? option.text : option)"
+            required
+          />
+          <label
+            :for="typeof option === 'object' ? option.uuid : `${question.id}-${option}-${optIndex}`"
+            class="ml-3 block text-sm font-medium text-gray-700"
+          >
+            {{ typeof option === 'object' ? option.text : option }}
+          </label>
+        </div>
       </div>
 
     </div>

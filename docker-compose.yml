@@ -1,0 +1,80 @@
+version: '3.8'
+
+services:
+  # PHP Backend Service (Laravel)
+  backend:
+    build:
+      context: .
+      dockerfile: backend.Dockerfile # This Dockerfile now uses FrankenPHP
+    container_name: survey_backend_frankenphp # Renamed for clarity
+    restart: unless-stopped
+    volumes:
+      - .:/app # Mount application code to /app (WORKDIR in new Dockerfile)
+    environment:
+      APP_ENV: ${APP_ENV:-local}
+      APP_DEBUG: ${APP_DEBUG:-true}
+      APP_KEY: ${APP_KEY} # Should be set in Laravel's .env file primarily
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      LOG_CHANNEL: ${LOG_CHANNEL:-stderr} # Good for Docker to see logs
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${DB_DATABASE:-laravel_vue_survey}
+      DB_USERNAME: ${DB_USERNAME:-surveyuser}
+      DB_PASSWORD: ${DB_PASSWORD:-surveypass}
+      OCTANE_SERVER: frankenphp # Ensure Octane uses FrankenPHP
+      # FrankenPHP/Caddy specific ENVs if needed, e.g. for HTTPS
+      # SERVER_NAME: ":80" # Or your domain
+    depends_on:
+      - db
+    networks:
+      - survey_network
+    ports:
+      # The backend container (FrankenPHP/Octane) now listens on port 80 as per Dockerfile CMD
+      - "${BACKEND_PORT:-8000}:80"
+
+  # Vue.js Frontend Service
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend.Dockerfile
+      args:
+        # This VITE_API_BASE_URL is used during the frontend build process.
+        # It should point to where the backend will be accessible from the user's browser.
+        # If backend is on port 8000, and frontend on 3000 (host machine ports)
+        VITE_API_BASE_URL: ${VITE_API_BASE_URL:-http://localhost:8000/api}
+    container_name: survey_frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:80" # Expose frontend Nginx port 80 to host port 3000
+    depends_on:
+      - backend # Optional: if frontend needs backend up during its own startup (not typical for SPA build)
+    networks:
+      - survey_network
+
+  # MySQL Database Service
+  db:
+    image: mysql:8.0
+    container_name: survey_db
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${DB_DATABASE:-laravel_vue_survey}
+      MYSQL_USER: ${DB_USERNAME:-surveyuser}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-surveypass}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootsecret} # Secure root password
+    volumes:
+      - survey_db_data:/var/lib/mysql # Persist database data
+      # Optional: Mount custom MySQL config
+      # - ./docker/mysql/my.cnf:/etc/mysql/conf.d/custom.cnf
+    ports:
+      - "${DB_FORWARD_PORT:-33060}:3306" # Forward MySQL port for external access if needed
+    networks:
+      - survey_network
+
+networks:
+  survey_network:
+    driver: bridge
+
+volumes:
+  survey_db_data: # Named volume for database persistence
+    driver: local

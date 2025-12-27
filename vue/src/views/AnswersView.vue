@@ -27,19 +27,32 @@
                     </th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-gray-200" v-if="answers">
-                  <tr v-for="(item, index) in answers">
+                <tbody class="divide-y divide-gray-200" v-if="answers && questions && Object.keys(questions).length > 0">
+                  <tr v-for="(submissionAnswers, submissionId) in answers" :key="submissionId">
                     <td
                       class="px-6 py-4 text-sm font-medium text-gray-800 whitespace-nowrap"
-                      v-for="(answer) in answers[index]"
+                      v-for="question in questions"
+                      :key="question.id"
                     >
-                      {{ answer }}
+                      {{ submissionAnswers[question.id] !== undefined ? submissionAnswers[question.id] : '-' }}
+                    </td>
+                  </tr>
+                </tbody>
+                <tbody v-else-if="!loading && (!answers || Object.keys(answers).length === 0)">
+                  <tr>
+                    <td :colspan="questions ? Object.keys(questions).length : 1" class="text-center py-4 text-gray-500">
+                      No answers found for this survey yet.
                     </td>
                   </tr>
                 </tbody>
               </table>
 
-              <div v-if="!answers"> No se encontraron respuestas </div>
+              <div v-if="!loading && answers && Object.keys(answers).length === 0 && questions && Object.keys(questions).length > 0" class="text-center py-4 text-gray-500">
+                 No answers found for this survey yet.
+              </div>
+               <div v-if="!loading && (!questions || Object.keys(questions).length === 0) && survey" class="text-center py-4 text-gray-500">
+                 This survey currently has no questions defined for displaying answers.
+              </div>
             </div>
           </div>
         </div>
@@ -52,28 +65,36 @@
 
 <script setup>
 import { useRoute } from "vue-router";
-import { computed } from "vue";
+import { computed, watch } from "vue";
 import store from "../store";
 import PageComponent from "../components/PageComponent.vue";
 
 const route = useRoute();
-// const store = useStore();
 
 const loading = computed(() => store.state.answers.loading);
-const data = computed(() => store.state.answers.data);
 
-const answers = computed(() => store.state.answers.data.answers);
-const questions = computed(() => store.state.answers.data.questions);
-const survey = computed(() => store.state.answers.data.survey);
+// Ensure initial state for answers, questions, survey are objects to prevent undefined access
+const answers = computed(() => store.state.answers.data && store.state.answers.data.answers ? store.state.answers.data.answers : {});
+const questions = computed(() => store.state.answers.data && store.state.answers.data.questions ? store.state.answers.data.questions : {});
+const survey = computed(() => store.state.answers.data && store.state.answers.data.survey ? store.state.answers.data.survey : {});
 
-let params = false;
 
+// Fetch data when the component is created or route.params.id changes
 if (route.params.id) {
-  store.dispatch("getAnswer",route.params.id);
-  params = true;
+  store.dispatch("getAnswer", route.params.id);
+} else {
+  // console.warn("Displaying all answers for all surveys is not fully supported by this view's design.");
+  // For now, let's clear any existing answer data if no ID is present or redirect.
+  // Or, display a message. For now, we'll rely on the survey title not appearing.
+  // store.dispatch("getAnswers"); // This was problematic, disabling for now.
+  // A better approach might be to redirect if no ID, or show a selection list.
 }
-if (!route.params.id) {
-  store.dispatch("getAnswers");
-}
+
+// Watch for route changes if the component is reused for different survey answer views
+watch(() => route.params.id, (newId, oldId) => {
+  if (newId) {
+    store.dispatch("getAnswer", newId);
+  }
+});
 
 </script>

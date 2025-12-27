@@ -298,7 +298,7 @@ function setOptions(options) {
 
 // Check if the question should have options
 function shouldHaveOptions() {
-  return ["select", "radio", "checkbox"].includes(model.value.type);
+  return ["select", "radio", "checkbox", "footprint"].includes(model.value.type);
 }
 
 // Add option
